@@ -10,7 +10,7 @@ help: ## show make targets
 
 .PHONY: prepare
 prepare: ## prepare the components
-	VERSION=$(VERSION) ./scripts/prepare
+	GO111MODULE=off VERSION=$(VERSION) ./scripts/prepare
 
 .PHONY: static
 static:  ## build static packages
@@ -20,7 +20,7 @@ static:  ## build static packages
 
 .PHONY: release
 release: static ## release
-	VERSION=$(VERSION) ./scripts/release
+	GO111MODULE=off VERSION=$(VERSION) ./scripts/release
 
 .PHONY: clean
 clean: ## clean the build artifacts
