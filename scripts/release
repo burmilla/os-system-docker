@@ -5,10 +5,12 @@ cd $(dirname $0)/..
 
 echo "#!/bin/sh" > ./dist/publish.sh
 chmod 755 ./dist/publish.sh
-echo "github-release release --user niusmallnan --repo os-system-docker --tag ${VERSION} --pre-release" >> ./dist/publish.sh
+echo "github-release release --user burmilla --repo os-system-docker --tag ${VERSION} --pre-release" >> ./dist/publish.sh
 
+echo Waiting 30 seconds after release creation to make sure that GitHub is ready for uploads
+sleep 30s
 for file in $(ls ./dist/linux/ | grep tgz); do
-    echo "github-release upload --user niusmallnan --repo os-system-docker --tag ${VERSION} --file ./dist/linux/${file} --name ${file}" >> ./dist/publish.sh
+    echo "github-release upload --user burmilla --repo os-system-docker --tag ${VERSION} --file ./dist/linux/${file} --name ${file}" >> ./dist/publish.sh
     echo "#hub release edit -m ${VERSION} -a ./dist/linux/${file} ${VERSION}" >> ./dist/publish.sh
 done
 
