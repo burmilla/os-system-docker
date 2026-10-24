@@ -2,7 +2,9 @@ CLI_DIR:=$(CURDIR)/components/cli
 ENGINE_DIR:=$(CURDIR)/components/engine
 PACKAGING_DIR:=$(CURDIR)/components/packaging
 VERSION=$(shell cat VERSION)
-ARCH:=$(shell $(CURDIR)/detect_arch)
+# target architecture in Go naming, defaults to the build host; any of ARCHS builds on any host
+ARCH?=$(shell $(CURDIR)/detect_arch)
+ARCHS:=amd64 arm64 loong64 riscv64
 
 .PHONY: help
 help: ## show make targets
@@ -18,8 +20,16 @@ static:  ## build static packages
 	mkdir -p $(CURDIR)/dist/
 	cp -r components/packaging/static/build/* $(CURDIR)/dist/
 
+.PHONY: static-all
+static-all: ## build static packages for all of ARCHS
+	for arch in $(ARCHS); do $(MAKE) ARCH=$$arch static || exit 1; done
+
 .PHONY: release
 release: static ## release
+	GO111MODULE=off VERSION=$(VERSION) ./scripts/release
+
+.PHONY: release-all
+release-all: static-all ## release for all of ARCHS
 	GO111MODULE=off VERSION=$(VERSION) ./scripts/release
 
 .PHONY: clean

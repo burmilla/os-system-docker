@@ -1,13 +1,11 @@
 #!/usr/bin/env sh
 
-arch="$(uname -m)"
+# Prints the build host architecture in Go naming, the default build target
 
-if [ "$arch" = "x86_64" ]; then
-    arch="amd64"
-elif [ "$arch" = "aarch64" ]; then
-    arch="arm64"
-else
-    echo "uknown"
-fi
-
-echo "$arch"
+case "$(uname -m)" in
+    x86_64) echo "amd64" ;;
+    aarch64) echo "arm64" ;;
+    loongarch64) echo "loong64" ;;
+    riscv64) echo "riscv64" ;;
+    *) echo "unknown" ;;
+esac
