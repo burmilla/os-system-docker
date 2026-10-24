@@ -8,6 +8,9 @@ make prepare
 make release
 ```
 
+`make release` builds for the host architecture. `make ARCH=<arch> release` cross compiles for one of
+`amd64`, `arm64`, `loong64` or `riscv64`, and `make release-all` builds all four.
+
 ## License
 Copyright (c) 2014-2019 [Rancher Labs, Inc.](http://rancher.com)
 
