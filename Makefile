@@ -26,11 +26,11 @@ static-all: ## build static packages for all of ARCHS
 
 .PHONY: release
 release: static ## release
-	GO111MODULE=off VERSION=$(VERSION) ./scripts/release
+	GO111MODULE=off VERSION=$(VERSION) ARCH=$(ARCH) ./scripts/release
 
 .PHONY: release-all
 release-all: static-all ## release for all of ARCHS
-	GO111MODULE=off VERSION=$(VERSION) ./scripts/release
+	GO111MODULE=off VERSION=$(VERSION) ARCH=$(ARCH) ./scripts/release
 
 .PHONY: clean
 clean: ## clean the build artifacts

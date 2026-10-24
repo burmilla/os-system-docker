@@ -1,0 +1,62 @@
+name: release
+
+# Builds the version in VERSION: amd64 creates the GitHub pre-release, then
+# arm64, loong64 and riscv64 are cross compiled in parallel and attach their packages to it.
+on:
+  workflow_dispatch:
+  # TEMPORARY: a push registers the workflow so it can be dispatched from this branch; removed before merge
+  push:
+    branches: [claude/project-thread-50sqk7]
+
+permissions:
+  contents: write
+
+env:
+  TRASH_VERSION: v0.2.7
+
+jobs:
+  amd64:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install trash
+      run: |
+        curl -fsSL https://github.com/rancher/trash/releases/download/${TRASH_VERSION}/trash-linux_amd64.tar.gz | sudo tar -xz -C /usr/local/bin ./trash
+
+    - name: Prepare components
+      run: make prepare
+
+    - name: Build
+      run: make ARCH=amd64 release
+
+    - name: Publish release
+      run: ./dist/publish.sh
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  cross:
+    needs: amd64
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [arm64, loong64, riscv64]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install trash
+      run: |
+        curl -fsSL https://github.com/rancher/trash/releases/download/${TRASH_VERSION}/trash-linux_amd64.tar.gz | sudo tar -xz -C /usr/local/bin ./trash
+
+    - name: Prepare components
+      run: make prepare
+
+    - name: Build
+      run: make ARCH=${{ matrix.arch }} release
+
+    - name: Upload to release
+      run: ./dist/publish.sh
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

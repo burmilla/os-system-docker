@@ -3,11 +3,17 @@ set -e
 
 cd $(dirname $0)/..
 
+REPO=burmilla/os-system-docker
+
 echo "#!/bin/sh" > ./dist/publish.sh
+echo "set -e" >> ./dist/publish.sh
 chmod 755 ./dist/publish.sh
-echo "github-release release --user burmilla --repo os-system-docker --tag ${VERSION} --pre-release" >> ./dist/publish.sh
+
+# The amd64 build creates the pre-release, the other arches only attach their packages to it
+if [ "${ARCH}" = "amd64" ]; then
+    echo "gh release view ${VERSION} --repo ${REPO} >/dev/null 2>&1 || gh release create ${VERSION} --repo ${REPO} --target \${GITHUB_SHA:-master} --title ${VERSION} --notes '' --prerelease" >> ./dist/publish.sh
+fi
 
 for file in $(ls ./dist/linux/ | grep tgz); do
-    echo "github-release upload --user burmilla --repo os-system-docker --tag ${VERSION} --file ./dist/linux/${file} --name ${file}" >> ./dist/publish.sh
+    echo "gh release upload ${VERSION} --repo ${REPO} --clobber ./dist/linux/${file}" >> ./dist/publish.sh
 done
-
